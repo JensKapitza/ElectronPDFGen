@@ -1,0 +1,16 @@
+{
+  "name": "ElectronPDF",
+  "version": "1.0.0",
+  "description": "ElectronPDF",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jens Kapitza <mail@jenskapitza.de>",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^17.0.0",
+    "electron-packager": "^15.4.0"
+  }
+}
