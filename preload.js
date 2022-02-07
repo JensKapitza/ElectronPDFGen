@@ -4,10 +4,12 @@ const { ipcRenderer  } = require('electron')
   
 
 window.addEventListener('DOMContentLoaded', () => {
-	console.log(ipcRenderer.sendSync('synchronous-message', 'ping')) // prints "pong"
+	setTimeout(() => ipcRenderer.send('asynchronous-message', 'ping'), 1000);
+	 
+	//console.log(ipcRenderer.sendSync('synchronous-message', 'ping')) // prints "pong"
 
-	ipcRenderer.on('asynchronous-reply', (event, arg) => {
-			console.log(arg) // prints "pong"
-	})
-	ipcRenderer.send('asynchronous-message', 'ping')
+	//ipcRenderer.on('asynchronous-reply', (event, arg) => {
+	//		console.log(arg) // prints "pong"
+	//})
+	//ipcRenderer.send('asynchronous-message', 'ping')
 })

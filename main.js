@@ -14,100 +14,25 @@ const { exec, execFile } = require('child_process');
 var param1 = "";
 var param2 = "";
 
+console.log(app.commandLine);
+console.log(process.argv);
 
 
-// Printing process.platform property value
-var platform = process.platform;
-switch(platform) {
-    case 'aix': 
-        console.log("IBM AIX platform");
-        break;
-    case 'darwin': 
-        console.log("Darwin platform(MacOS, IOS etc)");
-		
-		param1 = "sh";
-		param2 = "macos.sh";
-	
-        break;
-    case 'freebsd': 
-        console.log("FreeBSD Platform");
-		
-		param1 = "sh";
-		param2 = "freebsd.sh";
-        break;
-    case 'linux': 
-        console.log("Linux Platform");
-			
-		param1 = "sh";
-		param2 = "linux.sh";
-	
-	
-		const pathFile = Path.join(__dirname, param2);
-		exec('chmod +x ' + pathFile, (error, stdout, stderr) => {
-		  if (error) {
-			console.error(`error: ${error.message}`);
-			return;
-		  }
+//var pdfSource = process.argv[process.argv.length -2];
+//var pdfTarget = process.argv[process.argv.length -1];
+var pdfSource = app.commandLine.getSwitchValue("source");
+var pdfTarget = app.commandLine.getSwitchValue("target");
 
-		  if (stderr) {
-			console.error(`stderr: ${stderr}`);
-			return;
-		  }
+var pageSize0 = app.commandLine.getSwitchValue("pagesize");
+console.log("Source: ");
+console.log(pdfSource);
 
-		  console.log(`stdout:\n${stdout}`);
-		});
+console.log("pdfTarget: ");
+console.log(pdfTarget);
 
-        break;
-    case 'openbsd': 
-        console.log("OpenBSD platform");
-		param1 = "sh";
-		param2 = "openbsd.sh";
-        break;
-    case 'sunos': 
-        console.log("SunOS platform");
-        break;
-    case 'win32':
-        console.log("windows platform");
-		param1 = "start";
-		param2 = "windows.bat";
-        break;    
-    default: 
-        console.log("unknown platform");
-}
+console.log("pageSize0: ");
+console.log(pageSize0);
 
-
-const path = Path.join(__dirname, param2);
-
-console.log(path);
-if (!fs.existsSync(path)) {
-	fs.writeFile(path, '', function (err) {
-	  if (err) return console.log(err);
-	  console.log('create autostartup file');
-	});
-}
-
-if (fs.existsSync(path)) {
-	
-	console.log(param1 + " " + path);
-	execFile(path, (error, stdout, stderr) => {
-	  if (error) {
-		console.error(`error: ${error.message}`);
-		return;
-	  }
-
-	  if (stderr) {
-		console.error(`stderr: ${stderr}`);
-		return;
-	  }
-
-	  console.log(`stdout:\n${stdout}`);
-	});
-
-}
-
-const config = Path.join(__dirname, "config.json");
-var myconfig = JSON.parse(fs.readFileSync(config, 'utf8'));
- 
 
 function createWindow () {
 	 const win = new BrowserWindow({
@@ -121,19 +46,8 @@ function createWindow () {
 				 }
 		  })
 
-  win.menuBarVisible= false;
-	// win.loadURL('http://127.0.0.1:8000/test');
-	if (myconfig.url != "") {
-			win.loadURL(myconfig.url);
-	} else if (myconfig.file != "") {
-			win.loadFile(myconfig.file)
-	} else {
-		win.loadFile("index.html")
-	}	
-	
-	win.on("DOMContentLoaded", ()=>{
-		console.log("balblalbalblal");
-	});
+	win.menuBarVisible= false;
+	win.loadURL(pdfSource);
 }
 
 app.whenReady().then(createWindow);
@@ -153,18 +67,19 @@ app.on('activate', () => {
 
 ipcMain.on('asynchronous-message', (event, arg) => {
   console.log(arg) // prints "ping"
-  
-	const pdfPath = Path.join(__dirname, 'some-ducking-pdf.pdf');
-	console.log(pdfPath);
+  	
 	const win = BrowserWindow.fromWebContents(event.sender);
 
 	win.webContents.printToPDF({
-		 pageSize: myconfig.pageSize
+		"silent":true,
+		"marginsType": 2,
+        "printBackground": true,
+		"pageSize": pageSize0
 	}).then(data => {
-		 
-			fs.writeFile(pdfPath, data, err => {
+			fs.writeFile(Path.join(__dirname, pdfTarget), data, err => {
 			  if (err) return console.log(err.message);
 				console.log('PDF success!')
+				app.quit();
 			})
 		
   }).catch(error => {
